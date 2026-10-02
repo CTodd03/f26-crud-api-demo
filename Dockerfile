@@ -6,7 +6,8 @@ FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-RUN mvn -q -DskipTests package
+RUN chmod +x mvnw
+RUN ./mvnw -q -DskipTests package
 
  # =================================================================================================================================================================
 # Stage 2: Create a lightweight runtime image using JRE 25
