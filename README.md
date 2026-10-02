@@ -141,3 +141,31 @@ The app reads its database settings from environment variables. Spring Boot maps
 4. Visit `http://localhost:8080/api/plants`. A fresh database returns `[]`.
 
 Hibernate creates the `plants` table automatically on first run (`spring.jpa.hibernate.ddl-auto=update`).
+
+## Deployment (Render)
+ 
+Render has no native Java runtime, so the app is deployed with Docker.
+ 
+1. Add a `Dockerfile` at the repository root:
+```dockerfile
+FROM eclipse-temurin:25-jdk-alpine AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+RUN mvn -q -DskipTests package
+ 
+FROM eclipse-temurin:25-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
+```
+ 
+2. Push the repository to GitHub.
+3. In Render, create a **Web Service**, connect the repo, choose the **Docker** runtime and the **Free** instance type.
+4. Add the  `SPRING_DATASOURCE_URL` environment variable (value only, no quotes).
+5. Deploy, then open `https://<your-service>.onrender.com/api/plants`.
+### Free-tier notes
+ 
+- Render free services sleep after roughly 15 minutes of inactivity, so the first request afterward can take up to a minute.
+- Neon scales idle databases to zero, which adds a short delay on the first query.
+- Render's file system is ephemeral. All persistent data lives in Neon.
