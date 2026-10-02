@@ -1,6 +1,8 @@
 package com.csc340.plant_api.plants;
 
+import org.apache.catalina.connector.Response;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -43,5 +45,13 @@ public class PlantController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    /* Pulse check endpoint */
+    // This endpoint can be used to verify that the API is running and responsive
+    // without performing any actual plant-related operations.
+    @GetMapping("/pulse")
+    public ResponseEntity<String> checkPulse() {
+        return ResponseEntity.ok("Pulse check successful");
     }
 }
